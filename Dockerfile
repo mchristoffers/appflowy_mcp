@@ -14,6 +14,6 @@ RUN pip install --no-cache-dir .[collab]
 # The MCP server itself does no auth — oauth-agents in front owns client-facing auth.
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/mcp', timeout=4)" || exit 1
+    CMD python3 -c "import socket; s=socket.create_connection(('127.0.0.1',8000),4); s.close()" || exit 1
 
 CMD ["python3", "-m", "appflowy_mcp.server"]
