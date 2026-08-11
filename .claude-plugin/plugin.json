@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "appflowymcp",
+  "displayName": "AppFlowyMCP",
+  "version": "1.0.0",
+  "description": "Connects Claude Code to the hosted AppFlowyMCP server for working with Moritz's self-hosted AppFlowy Cloud: documents, databases, rows, search, and more.",
+  "author": {
+    "name": "Moritz Christoffers"
+  },
+  "repository": "https://github.com/mchristoffers/appflowy_mcp",
+  "keywords": ["appflowy", "notes", "mcp", "documents", "databases"]
+}

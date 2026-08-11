@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "appflowymcp",
+  "version": "1.0.0",
+  "description": "Connects an agent to Moritz's self-hosted AppFlowy Cloud via a hosted MCP server: documents, pages, databases, rows, search, quick notes, and publishing. Displayed as \"AppFlowyMCP\".",
+  "author": {
+    "name": "Moritz Christoffers"
+  },
+  "repository": "https://github.com/mchristoffers/appflowy_mcp",
+  "keywords": ["appflowy", "notes", "mcp", "documents", "databases"]
+}

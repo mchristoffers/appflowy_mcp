@@ -1,0 +1,64 @@
+name: appflowymcp
+
+# AppFlowyMCP auf der Homeserver-Coolify. Oeffentlich erreichbar (fuer den
+# claude.ai Web-Connector) ueber den Homelab-Cloudflare-Tunnel, gesichert
+# durch oauth-agents (siehe unten). Der MCP-Server spricht die REST-API der
+# bestehenden AppFlowy-Instanz (https://appflowy.mchristoffers.dev) an.
+#
+# Zwei Container statt drei: kein Dex, kein oauth2-proxy, kein Caddy-Router.
+# /register liefert immer denselben statischen Client — claude.ai verbindet
+# sich ohne manuell eingetragene Client-ID. Quelle fuer den oauth-Container:
+# github.com/mchristoffers/oauth-agents, hier einkopiert, damit der
+# Coolify-Deploy nicht von einem zweiten privaten Repo abhaengt.
+
+services:
+  appflowymcp:
+    # Eigener Build — siehe Dockerfile. GitHub Actions baut und pusht nach GHCR,
+    # Coolify zieht nur. pull_policy: always holt auf jedem Redeploy den
+    # neuesten Stand (Moritz' Standard), build: bleibt damit Actions den
+    # gleichen Compose-Build nutzt wie der Deploy.
+    build:
+      context: .
+    image: ghcr.io/mchristoffers/appflowy_mcp:${APPFLOWY_MCP_TAG:?APPFLOWY_MCP_TAG is required}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      APPFLOWY_BASE_URL: ${APPFLOWY_BASE_URL:?APPFLOWY_BASE_URL is required}
+      APPFLOWY_EMAIL: ${APPFLOWY_EMAIL:?APPFLOWY_EMAIL is required}
+      APPFLOWY_PASSWORD: ${APPFLOWY_PASSWORD:?APPFLOWY_PASSWORD is required}
+    expose:
+      - "8000"
+    networks:
+      - appflowymcp_internal
+
+  # Login vor dem sonst ungeschuetzten MCP-Server. Ein Container, ein Image,
+  # Konfiguration komplett ueber Environment — nichts davon liegt in diesem
+  # Repo. Der Signing-Key entsteht beim ersten Start und liegt im Volume —
+  # ohne das waere nach jedem Redeploy jeder Login weg.
+  oauth:
+    image: ghcr.io/mchristoffers/oauth-agents:latest
+    pull_policy: always
+    restart: unless-stopped
+    depends_on:
+      appflowymcp:
+        condition: service_started
+    environment:
+      ISSUER: ${ISSUER:?ISSUER is required}
+      UPSTREAM: http://appflowymcp:8000
+      USERNAME: ${GATEWAY_USERNAME:?GATEWAY_USERNAME is required}
+      PASSWORD: ${GATEWAY_PASSWORD:?GATEWAY_PASSWORD is required}
+      # Der MCP-Server haengt unter /mcp, nicht an der Wurzel.
+      RESOURCE: ${ISSUER:?ISSUER is required}/mcp
+    ports:
+      - "8085:8080"
+    volumes:
+      - oauth_data:/data
+    networks:
+      - appflowymcp_internal
+
+volumes:
+  oauth_data:
+
+networks:
+  appflowymcp_internal:
+    name: appflowymcp_internal

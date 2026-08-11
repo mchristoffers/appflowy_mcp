@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "appflowy-mcp": {
+      "type": "http",
+      "url": "https://appflowymcp-oauth.mchristoffers.dev/mcp",
+      "oauth": {
+        "clientId": "claude-mcp",
+        "clientSecret": "${APPFLOWYMCP_DEX_CLIENT_SECRET}",
+        "callbackPort": 51824
+      }
+    }
+  }
+}
